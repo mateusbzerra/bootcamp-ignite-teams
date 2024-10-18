@@ -1,5 +1,5 @@
 import { TouchableOpacity } from 'react-native'
-import styled from 'styled-components/native'
+import styled, { css } from 'styled-components/native'
 import { ButtonVariants } from './'
 
 interface Props {
@@ -18,8 +18,10 @@ export const Button = styled(TouchableOpacity)<Props>`
 `
 
 export const Label = styled.Text`
-  text-align: center;
-  color: ${({ theme }) => theme.COLORS.WHITE};
-  font-size: ${({ theme }) => theme.FONT_SIZE.MD}px;
-  font-family: ${({ theme }) => theme.FONT_FAMILY.BOLD};
+  ${({ theme }) => css`
+    text-align: center;
+    color: ${theme.COLORS.WHITE};
+    font-size: ${theme.FONT_SIZE.MD}px;
+    font-family: ${theme.FONT_FAMILY.BOLD};
+  `}
 `
