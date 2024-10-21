@@ -7,15 +7,11 @@ export enum ButtonVariants {
 }
 
 interface Props extends TouchableOpacityProps {
-  variant: ButtonVariants
+  variant: 'primary' | 'danger'
   label: string
 }
 
-export const Button = ({
-  variant = ButtonVariants.primary,
-  label,
-  ...props
-}: Props) => {
+export const Button = ({ variant = 'primary', label, ...props }: Props) => {
   return (
     <S.Button variant={variant} {...props}>
       <S.Label>{label}</S.Label>

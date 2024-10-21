@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components/native'
 import { ButtonVariants } from './'
 
 interface Props {
-  variant: ButtonVariants
+  variant: 'primary' | 'danger'
 }
 
 export const Button = styled(TouchableOpacity)<Props>`
