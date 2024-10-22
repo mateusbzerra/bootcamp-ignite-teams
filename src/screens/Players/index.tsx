@@ -10,51 +10,62 @@ import { PlayerCard } from './components/PlayerCard'
 
 import * as S from './styles'
 import { EmptyListMessage } from '@components/EmptyListMessage'
+import { useRoute } from '@react-navigation/native'
+
+type RouteParams = {
+  groupName: string
+}
 
 export const Players = () => {
   const [selectedTeam, setSelectedTeam] = useState('Team A')
   const [players, setPlayers] = useState([])
+
+  const route = useRoute()
+
+  const routeParams = route.params as RouteParams
+
   return (
     <S.Container>
-      <S.Content>
-        <Header showBackButton />
-        <Highlight title="Group name" subtitle="Add Players & Choose Teams" />
-        <S.InputWrapper>
-          <Input placeholder="Player name" />
-          <ButtonIcon iconName="add" variant="success" />
-        </S.InputWrapper>
-        <S.HeadersList>
-          <FlatList
-            data={['Team A', 'Team B', 'Team C']}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <Filter
-                label={item}
-                isActive={selectedTeam === item}
-                onPress={() => setSelectedTeam(item)}
-              />
-            )}
-            horizontal
-          />
-          <S.NumberOfPlayers>12</S.NumberOfPlayers>
-        </S.HeadersList>
-
+      <Header showBackButton />
+      <Highlight
+        title={routeParams.groupName}
+        subtitle="Add Players & Choose Teams"
+      />
+      <S.InputWrapper>
+        <Input placeholder="Player name" />
+        <ButtonIcon iconName="add" variant="success" />
+      </S.InputWrapper>
+      <S.HeadersList>
         <FlatList
-          data={players}
+          data={['Team A', 'Team B', 'Team C']}
           keyExtractor={(item) => item}
-          renderItem={({ item }) => <PlayerCard name={item} />}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={() => (
-            <EmptyListMessage message="No players on this team" />
+          renderItem={({ item }) => (
+            <Filter
+              label={item}
+              isActive={selectedTeam === item}
+              onPress={() => setSelectedTeam(item)}
+            />
           )}
-          contentContainerStyle={[
-            { paddingBottom: 50 },
-            players.length === 0 && { flex: 1 },
-          ]}
+          horizontal
         />
+        <S.NumberOfPlayers>12</S.NumberOfPlayers>
+      </S.HeadersList>
 
-        <Button variant="danger" label="Delete Group" />
-      </S.Content>
+      <FlatList
+        data={players}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => <PlayerCard name={item} />}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+          <EmptyListMessage message="No players on this team" />
+        )}
+        contentContainerStyle={[
+          { paddingBottom: 50 },
+          players.length === 0 && { flex: 1 },
+        ]}
+      />
+
+      <Button variant="danger" label="Delete Group" />
     </S.Container>
   )
 }
