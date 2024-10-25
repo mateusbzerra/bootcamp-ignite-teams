@@ -14,7 +14,7 @@ import * as groupActions from '@storage/groups.actions'
 import { AppError } from '@services/app-error-handler'
 import { Alert } from 'react-native'
 
-const DEFAULT_ERROR_MESSAGE = 'An error occurred while creating the group'
+const ERROR_MESSAGE = 'An error occurred while creating the group'
 
 export const NewGroup = () => {
   const { COLORS } = useTheme()
@@ -27,13 +27,13 @@ export const NewGroup = () => {
     const groupId = generateUuid()
     try {
       await groupActions.createNewGroup({ id: groupId, name: inputValue })
-      navigation.navigate('Players', { groupName: inputValue })
+      navigation.navigate('Players', { groupName: inputValue, groupId })
     } catch (error) {
       const isCustomAppError = error instanceof AppError
 
       return Alert.alert(
         'New group',
-        isCustomAppError ? error.message : DEFAULT_ERROR_MESSAGE
+        isCustomAppError ? error.message : ERROR_MESSAGE
       )
     }
   }

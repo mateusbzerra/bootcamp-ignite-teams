@@ -9,11 +9,22 @@ export interface GroupType {
 
 export const getAllGroups = async () => {
   try {
-    const groups = await AsyncStorage.getItem(GROUP_COLLECTION)
+    const storageItems = await AsyncStorage.getItem(GROUP_COLLECTION)
 
-    if (!groups) return []
+    if (!storageItems) return []
 
-    return JSON.parse(groups)
+    const groups: GroupType[] = JSON.parse(storageItems)
+    return groups
+  } catch (error) {
+    throw error
+  }
+}
+
+export const getGroupById = async (groupId: string) => {
+  try {
+    const groups = await getAllGroups()
+
+    return groups.find((group) => group.id === groupId)
   } catch (error) {
     throw error
   }

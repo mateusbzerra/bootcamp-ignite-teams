@@ -1,6 +1,7 @@
+import { TextInput } from 'react-native'
 import styled, { css } from 'styled-components/native'
 
-export const Input = styled.TextInput`
+export const Input = styled(TextInput)`
   flex: 1;
   height: 100%;
   max-height: 56px;

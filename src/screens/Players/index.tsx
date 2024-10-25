@@ -4,25 +4,83 @@ import { Button } from '@components/Button'
 import { Input } from '@components/Input'
 import { ButtonIcon } from '@components/ButtonIcon'
 import { Filter } from './components/Filter'
-import { FlatList } from 'react-native'
-import { useState } from 'react'
+import { Alert, FlatList, TextInput } from 'react-native'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { PlayerCard } from './components/PlayerCard'
 
 import * as S from './styles'
 import { EmptyListMessage } from '@components/EmptyListMessage'
 import { useRoute } from '@react-navigation/native'
+import {
+  getPlayersByGroup,
+  PlayerType,
+  addNewPlayer,
+  getPlayersByGroupAndTeam,
+} from '@storage/players.actions'
+import { AppError } from '@services/app-error-handler'
 
 type RouteParams = {
   groupName: string
+  groupId: string
 }
 
+const ERROR_MESSAGE = 'An error occurred while adding the player'
+
 export const Players = () => {
+  const [playerNameInput, setPlayerNameInput] = useState('')
   const [selectedTeam, setSelectedTeam] = useState('Team A')
-  const [players, setPlayers] = useState([])
+  const [players, setPlayers] = useState<PlayerType[]>([])
+
+  const playerInputRef = useRef<TextInput>(null)
 
   const route = useRoute()
 
   const routeParams = route.params as RouteParams
+
+  const handleAddPlayer = async () => {
+    const newPlayer = {
+      name: playerNameInput,
+      team: selectedTeam,
+      groupId: routeParams.groupId,
+    }
+
+    try {
+      await addNewPlayer(newPlayer)
+      setPlayerNameInput('')
+      playerInputRef.current?.blur()
+      fetchPlayersByTeam()
+    } catch (error) {
+      const isCustomAppError = error instanceof AppError
+
+      return Alert.alert(
+        'New Player',
+        isCustomAppError ? error.message : ERROR_MESSAGE
+      )
+    }
+  }
+
+  const fetchPlayersByTeam = async () => {
+    try {
+      const playersList = await getPlayersByGroupAndTeam(
+        routeParams.groupId,
+        selectedTeam
+      )
+      setPlayers(playersList)
+    } catch (error) {
+      Alert.alert('Players', 'Error while fetching players')
+    }
+  }
+
+  useEffect(() => {
+    fetchPlayersByTeam()
+  }, [selectedTeam])
 
   return (
     <S.Container>
@@ -32,12 +90,22 @@ export const Players = () => {
         subtitle="Add Players & Choose Teams"
       />
       <S.InputWrapper>
-        <Input placeholder="Player name" />
-        <ButtonIcon iconName="add" variant="success" />
+        <Input
+          ref={playerInputRef}
+          placeholder="Player name"
+          value={playerNameInput}
+          onChangeText={setPlayerNameInput}
+        />
+        <ButtonIcon
+          iconName="add"
+          disabled={playerNameInput.trim().length < 3}
+          variant="success"
+          onPress={handleAddPlayer}
+        />
       </S.InputWrapper>
       <S.HeadersList>
         <FlatList
-          data={['Team A', 'Team B', 'Team C']}
+          data={['Team A', 'Team B']}
           keyExtractor={(item) => item}
           renderItem={({ item }) => (
             <Filter
@@ -53,8 +121,8 @@ export const Players = () => {
 
       <FlatList
         data={players}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => <PlayerCard name={item} />}
+        keyExtractor={(item) => item.name}
+        renderItem={({ item }) => <PlayerCard name={item.name} />}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
           <EmptyListMessage message="No players on this team" />

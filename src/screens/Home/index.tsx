@@ -34,6 +34,10 @@ export const Home = () => {
     }, [])
   )
 
+  const handleOpenGroup = (group: GroupType) => {
+    navigation.navigate('Players', { groupId: group.id, groupName: group.name })
+  }
+
   return (
     <S.Container>
       <Header />
@@ -41,7 +45,9 @@ export const Home = () => {
       <FlatList
         data={groups}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <GroupsCard title={item.name} />}
+        renderItem={({ item }) => (
+          <GroupsCard title={item.name} onPress={() => handleOpenGroup(item)} />
+        )}
         contentContainerStyle={!groups && { flex: 1 }}
         ListEmptyComponent={() => <EmptyListMessage message="No teams found" />}
       />
