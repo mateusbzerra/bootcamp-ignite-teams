@@ -4,11 +4,17 @@ import * as S from './styles'
 import { UsersThree } from 'phosphor-react-native'
 import { useTheme } from 'styled-components/native'
 
-import { Button, ButtonVariants } from '@components/Button'
-import { SafeAreaView, View } from 'react-native'
+import { ButtonVariants } from '@components/Button'
+
 import { Input } from '@components/Input'
 import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
+import { generateUuid } from '@services/generate-uuid'
+import * as groupActions from '@storage/groups.actions'
+import { AppError } from '@services/app-error-handler'
+import { Alert } from 'react-native'
+
+const DEFAULT_ERROR_MESSAGE = 'An error occurred while creating the group'
 
 export const NewGroup = () => {
   const { COLORS } = useTheme()
@@ -17,8 +23,19 @@ export const NewGroup = () => {
 
   const navigation = useNavigation()
 
-  const openPlayersScreen = () => {
-    navigation.navigate('Players', { groupName: inputValue })
+  const handleCreateNewGroup = async () => {
+    const groupId = generateUuid()
+    try {
+      await groupActions.createNewGroup({ id: groupId, name: inputValue })
+      navigation.navigate('Players', { groupName: inputValue })
+    } catch (error) {
+      const isCustomAppError = error instanceof AppError
+
+      return Alert.alert(
+        'New group',
+        isCustomAppError ? error.message : DEFAULT_ERROR_MESSAGE
+      )
+    }
   }
 
   return (
@@ -42,9 +59,9 @@ export const NewGroup = () => {
         />
         <S.StyledButton
           label="Create"
-          disabled={inputValue.length < 3}
+          disabled={inputValue.trim().length < 3}
           variant={ButtonVariants.primary}
-          onPress={openPlayersScreen}
+          onPress={handleCreateNewGroup}
         />
       </S.Content>
     </S.Container>

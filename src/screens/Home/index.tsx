@@ -4,13 +4,14 @@ import { Header } from '@components/Header'
 import { Highlight } from '@components/Highlight'
 import { GroupsCard } from '@components/GroupsCard'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { FlatList } from 'react-native'
 import { Button, ButtonVariants } from '@components/Button'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import { type GroupType, getAllGroups } from '@storage/groups.actions'
 
 export const Home = () => {
-  const [groups, setGroups] = useState([])
+  const [groups, setGroups] = useState<GroupType[]>()
 
   const navigation = useNavigation()
 
@@ -18,15 +19,30 @@ export const Home = () => {
     navigation.navigate('NewGroup')
   }
 
+  const fetchAllGroups = async () => {
+    try {
+      const groups = await getAllGroups()
+      setGroups(groups)
+    } catch (error) {
+      console.log({ error })
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchAllGroups()
+    }, [])
+  )
+
   return (
     <S.Container>
       <Header />
       <Highlight title="Teams" subtitle="Play with your team!" />
       <FlatList
         data={groups}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => <GroupsCard title={item} />}
-        contentContainerStyle={!groups.length && { flex: 1 }}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <GroupsCard title={item.name} />}
+        contentContainerStyle={!groups && { flex: 1 }}
         ListEmptyComponent={() => <EmptyListMessage message="No teams found" />}
       />
       <Button
