@@ -41,7 +41,6 @@ export const getPlayersByGroupAndTeam = async (
 export const addNewPlayer = async (player: PlayerType) => {
   try {
     const playersByGroup = await getPlayersByGroup(player.groupId)
-    console.log({ playersByGroup })
 
     const playerAlreadyAdded = playersByGroup.filter(
       (item) => item.name === player.name
@@ -54,6 +53,23 @@ export const addNewPlayer = async (player: PlayerType) => {
     await AsyncStorage.setItem(
       `${PLAYER_COLLECTION}-${player.groupId}`,
       JSON.stringify([...playersByGroup, player])
+    )
+  } catch (error) {
+    throw error
+  }
+}
+
+export const removePlayerFromGroup = async (player: PlayerType) => {
+  try {
+    const playersByGroup = await getPlayersByGroup(player.groupId)
+
+    const filteredPlayers = playersByGroup.filter(
+      (playerItem) => playerItem.name !== player.name
+    )
+
+    await AsyncStorage.setItem(
+      `${PLAYER_COLLECTION}-${player.groupId}`,
+      JSON.stringify(filteredPlayers)
     )
   } catch (error) {
     throw error

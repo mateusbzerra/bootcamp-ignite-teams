@@ -5,14 +5,7 @@ import { Input } from '@components/Input'
 import { ButtonIcon } from '@components/ButtonIcon'
 import { Filter } from './components/Filter'
 import { Alert, FlatList, TextInput } from 'react-native'
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PlayerCard } from './components/PlayerCard'
 
 import * as S from './styles'
@@ -23,6 +16,7 @@ import {
   PlayerType,
   addNewPlayer,
   getPlayersByGroupAndTeam,
+  removePlayerFromGroup,
 } from '@storage/players.actions'
 import { AppError } from '@services/app-error-handler'
 
@@ -63,6 +57,15 @@ export const Players = () => {
         'New Player',
         isCustomAppError ? error.message : ERROR_MESSAGE
       )
+    }
+  }
+
+  const handleRemovePlayer = async (player: PlayerType) => {
+    try {
+      await removePlayerFromGroup(player)
+      fetchPlayersByTeam()
+    } catch (e) {
+      Alert.alert('Remove Player', 'Unable to remove the player!')
     }
   }
 
@@ -122,7 +125,12 @@ export const Players = () => {
       <FlatList
         data={players}
         keyExtractor={(item) => item.name}
-        renderItem={({ item }) => <PlayerCard name={item.name} />}
+        renderItem={({ item }) => (
+          <PlayerCard
+            name={item.name}
+            onDeletePlayer={() => handleRemovePlayer(item)}
+          />
+        )}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
           <EmptyListMessage message="No players on this team" />
