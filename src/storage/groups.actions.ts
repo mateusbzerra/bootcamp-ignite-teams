@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { GROUP_COLLECTION } from './storage.config'
+import { GROUP_COLLECTION, PLAYER_COLLECTION } from './storage.config'
 import { AppError } from '@services/app-error-handler'
 
 export interface GroupType {
@@ -58,6 +58,7 @@ export const deleteGroup = async (groupId: string) => {
       GROUP_COLLECTION,
       JSON.stringify([...currentData.filter((item) => item.id !== groupId)])
     )
+    await AsyncStorage.removeItem(`${PLAYER_COLLECTION}-${groupId}`)
   } catch (error) {
     throw error
   }

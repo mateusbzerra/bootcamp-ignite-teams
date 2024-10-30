@@ -10,15 +10,15 @@ import { PlayerCard } from './components/PlayerCard'
 
 import * as S from './styles'
 import { EmptyListMessage } from '@components/EmptyListMessage'
-import { useRoute } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import {
-  getPlayersByGroup,
   PlayerType,
   addNewPlayer,
   getPlayersByGroupAndTeam,
   removePlayerFromGroup,
 } from '@storage/players.actions'
 import { AppError } from '@services/app-error-handler'
+import { deleteGroup } from '@storage/groups.actions'
 
 type RouteParams = {
   groupName: string
@@ -35,6 +35,8 @@ export const Players = () => {
   const playerInputRef = useRef<TextInput>(null)
 
   const route = useRoute()
+
+  const navigation = useNavigation()
 
   const routeParams = route.params as RouteParams
 
@@ -66,6 +68,33 @@ export const Players = () => {
       fetchPlayersByTeam()
     } catch (e) {
       Alert.alert('Remove Player', 'Unable to remove the player!')
+    }
+  }
+
+  const showDeleteGroupConfirmation = () => {
+    Alert.alert('Delete Group', 'Are you sure you want to delete this Group?', [
+      { text: 'No', style: 'cancel' },
+      { text: 'Yes', onPress: handleDeleteGroup },
+    ])
+  }
+
+  const handleDeleteGroup = async () => {
+    const { groupId } = routeParams
+
+    const triggerErrorAlert = () => {
+      Alert.alert('Delete Group', 'Unable to delete the group')
+    }
+
+    if (!groupId) {
+      triggerErrorAlert()
+    }
+
+    try {
+      await deleteGroup(groupId)
+
+      navigation.navigate('Home')
+    } catch (e) {
+      triggerErrorAlert()
     }
   }
 
@@ -119,7 +148,7 @@ export const Players = () => {
           )}
           horizontal
         />
-        <S.NumberOfPlayers>12</S.NumberOfPlayers>
+        <S.NumberOfPlayers>{players.length}</S.NumberOfPlayers>
       </S.HeadersList>
 
       <FlatList
@@ -141,7 +170,11 @@ export const Players = () => {
         ]}
       />
 
-      <Button variant="danger" label="Delete Group" />
+      <Button
+        variant="danger"
+        onPress={showDeleteGroupConfirmation}
+        label="Delete Group"
+      />
     </S.Container>
   )
 }
