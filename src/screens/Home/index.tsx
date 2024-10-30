@@ -5,7 +5,7 @@ import { Highlight } from '@components/Highlight'
 import { GroupsCard } from '@components/GroupsCard'
 
 import { useCallback, useState } from 'react'
-import { FlatList } from 'react-native'
+import { Alert, FlatList } from 'react-native'
 import { Button, ButtonVariants } from '@components/Button'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import { type GroupType, getAllGroups } from '@storage/groups.actions'
@@ -24,7 +24,7 @@ export const Home = () => {
       const groups = await getAllGroups()
       setGroups(groups)
     } catch (error) {
-      console.log({ error })
+      Alert.alert('Error', 'Unable to load the groups')
     }
   }
 

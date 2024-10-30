@@ -127,6 +127,7 @@ export const Players = () => {
           placeholder="Player name"
           value={playerNameInput}
           onChangeText={setPlayerNameInput}
+          autoCorrect={false}
         />
         <ButtonIcon
           iconName="add"
